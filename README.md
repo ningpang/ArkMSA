@@ -1,6 +1,14 @@
 # Enhancing Multimodal Sentiment Analysis via Learning from Large Language Model 
 ![Arch Diagram](figures/mainarch.jpg)
 # Running The Code
+## Dependency
+Some important packages are listed as follows.
+```
+python == 3.7
+pytorch == 1.13.1
+transformers == 4.22.2
+numpy == 1.21.6
+```
 ## Data 
 We have provided the data of Twitter-15, Twitter-17, MVSA-Single and MVSA-Multiple.
 You don't need the images to run the code in the repo.
