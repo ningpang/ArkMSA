@@ -102,9 +102,9 @@ class Twitter(object):
             dev = json.load(open(os.path.join(self.root_dir, 'tw15_dev.json')))
             test = json.load(open(os.path.join(self.root_dir, 'tw15_test.json')))
         else:
-            train = json.load(open(os.path.join(self.root_dir, 'knowledge_TW17_train.json')))
-            dev = json.load(open(os.path.join(self.root_dir, 'knowledge_TW17_dev.json')))
-            test = json.load(open(os.path.join(self.root_dir, 'knowledge_TW17_test.json')))
+            train = json.load(open(os.path.join(self.root_dir, 'tw17_train.json')))
+            dev = json.load(open(os.path.join(self.root_dir, 'tw17_dev.json')))
+            test = json.load(open(os.path.join(self.root_dir, 'tw17_test.json')))
 
         def get_data(data):
             ids = []
@@ -227,13 +227,13 @@ class MVSA(object):
 
     def load_dataset(self):
         if self.config.dataset_name == 'single':
-            train = json.load(open(os.path.join(self.root_dir, 'mvsa_single_train.json')))
-            dev = json.load(open(os.path.join(self.root_dir, 'mvsa_single_dev.json')))
-            test = json.load(open(os.path.join(self.root_dir, 'mvsa_single_test.json')))
+            train = json.load(open(os.path.join(self.root_dir, 'single_train.json')))
+            dev = json.load(open(os.path.join(self.root_dir, 'single_dev.json')))
+            test = json.load(open(os.path.join(self.root_dir, 'single_test.json')))
         elif self.config.dataset_name == 'multiple':
-            train = json.load(open(os.path.join(self.root_dir, 'mvsa_multiple_train.json')))
-            dev = json.load(open(os.path.join(self.root_dir, 'mvsa_multiple_dev.json')))
-            test = json.load(open(os.path.join(self.root_dir, 'mvsa_multiple_dev.json')))
+            train = json.load(open(os.path.join(self.root_dir, 'multiple_train.json')))
+            dev = json.load(open(os.path.join(self.root_dir, 'multiple_dev.json')))
+            test = json.load(open(os.path.join(self.root_dir, 'multiple_test.json')))
         else:
             raise NotImplementedError
 
@@ -315,6 +315,7 @@ class MVSAKnow(object):
         return processed_data
 
     def bert_mlm_process(self, data):
+        print('Using prompt-tuning ....')
         SEP = '[SEP]'
         ids = data[0]
         texts = data[1]
@@ -337,14 +338,13 @@ class MVSAKnow(object):
 
             label = labels[i]
             all_candidates = []
-            all_candidates.append((self.templates[0], describ+ SEP+ text))
+            all_candidates.append((text+SEP+describ, self.templates[0]))
             sent_feature = self.tokenizer.batch_encode_plus(all_candidates, return_token_type_ids=True,
                                                                           max_length=self.max_length,
                                                                           truncation=True, padding="max_length",
                                                                           return_tensors='pt')
 
             instance['features'] = sent_feature
-            # instance['tokens'] = self.tokenizer.encode(text, padding='max_length', truncation=True, max_length=self.max_length)
             instance['label'] = label
             processed_data.append(instance)
         return processed_data
@@ -403,68 +403,16 @@ class MVSAKnow(object):
             processed_data.append(instance)
         return processed_data
 
-    def fewshot_bert_mlm_process(self, data):
-        SEP = '[SEP]'
-        ids = data[0]
-        texts = data[1]
-        describs = data[2]
-        reasons = data[3]
-        imgs = data[4]
-        labels = data[5]
-        processed_data = []
-        neg_nums = 0
-        neu_nums = 0
-        pos_nums = 0
-        for i in range(len(ids)):
-            if labels[i] == 0 and neg_nums<10:
-                neg_nums+=1
-            elif labels[i] == 0 and neg_nums >9:
-                continue
-            if labels[i] == 1 and neu_nums<4:
-                neu_nums += 1
-            elif labels[i] == 1 and neu_nums>3:
-                continue
-            if labels[i] == 2 and pos_nums<20:
-                pos_nums += 1
-            elif labels[i] == 2 and pos_nums>19:
-                continue
-
-            instance = {}
-            text = texts[i]
-            describ = describs[i].strip().split()
-            if len(describ) > self.config.reserve_length:
-                describ = describ[:self.config.reserve_length]
-            describ = ' '.join(describ)
-            reason = reasons[i].strip().split()
-            if len(reason) > self.config.reserve_length:
-                reason = reason[:self.config.reserve_length]
-            reason = ' '.join(reason)
-
-            label = labels[i]
-            all_candidates = []
-            all_candidates.append((self.templates[0], text + SEP + describ))
-            sent_feature = self.tokenizer.batch_encode_plus(all_candidates, return_token_type_ids=True,
-                                                            max_length=self.max_length,
-                                                            truncation=True, padding="max_length",
-                                                            return_tensors='pt')
-            instance['features'] = sent_feature
-            # instance['tokens'] = self.tokenizer.encode(text, padding='max_length', truncation=True, max_length=self.max_length)
-            instance['label'] = label
-            processed_data.append(instance)
-        # random.shuffle(processed_data)
-        print(neg_nums, neu_nums, pos_nums)
-        print(len(processed_data))
-        return processed_data
 
     def load_dataset(self):
         if self.config.dataset_name == 'single':
-            train = json.load(open(os.path.join(self.root_dir, 'mvsa_single_train.json')))
-            dev = json.load(open(os.path.join(self.root_dir, 'mvsa_single_dev.json')))
-            test = json.load(open(os.path.join(self.root_dir, 'mvsa_single_test.json')))
+            train = json.load(open(os.path.join(self.root_dir, 'single_train.json')))
+            dev = json.load(open(os.path.join(self.root_dir, 'single_dev.json')))
+            test = json.load(open(os.path.join(self.root_dir, 'single_test.json')))
         elif self.config.dataset_name == 'multiple':
-            train = json.load(open(os.path.join(self.root_dir, 'mvsa_multiple_train.json')))
-            dev = json.load(open(os.path.join(self.root_dir, 'mvsa_multiple_dev.json')))
-            test = json.load(open(os.path.join(self.root_dir, 'mvsa_multiple_test.json')))
+            train = json.load(open(os.path.join(self.root_dir, 'multiple_train.json')))
+            dev = json.load(open(os.path.join(self.root_dir, 'multiple_dev.json')))
+            test = json.load(open(os.path.join(self.root_dir, 'multiple_test.json')))
         else:
             raise NotImplementedError
 
@@ -506,7 +454,6 @@ class MVSAKnow(object):
             raise NotImplementedError
 
         return train_data, dev_data, test_data
-
 
 class Twitter17Know(object):
     def __init__(self, config, root_dir, tokenizer):
@@ -671,9 +618,9 @@ class Twitter17Know(object):
             dev = json.load(open(os.path.join(self.root_dir, 'tw15_dev.json')))
             test = json.load(open(os.path.join(self.root_dir, 'tw15_test.json')))
         else:
-            train = json.load(open(os.path.join(self.root_dir, 'knowledge_TW17_train.json')))
-            dev = json.load(open(os.path.join(self.root_dir, 'knowledge_TW17_dev.json')))
-            test = json.load(open(os.path.join(self.root_dir, 'knowledge_TW17_test.json')))
+            train = json.load(open(os.path.join(self.root_dir, 'tw17_train.json')))
+            dev = json.load(open(os.path.join(self.root_dir, 'tw17_dev.json')))
+            test = json.load(open(os.path.join(self.root_dir, 'tw17_test.json')))
 
         def get_data(data):
             ids = []
