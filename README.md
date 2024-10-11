@@ -24,6 +24,22 @@ python main.py
 ```
 
 # Citations
-If you found this paper useful, citing the paper and dataset would be greatly appreciated after the paper is accepted.
-
+If you found this paper useful, citing the paper and dataset would be greatly appreciated.
+```
+@inproceedings{DBLP:conf/icmcs/PangWHXYQ24,
+  author       = {Ning Pang and
+                  Wansen Wu and
+                  Yue Hu and
+                  Kai Xu and
+                  Quanjun Yin and
+                  Long Qin},
+  title        = {Enhancing Multimodal Sentiment Analysis via Learning from Large Language
+                  Model},
+  booktitle    = {{IEEE} International Conference on Multimedia and Expo, {ICME} 2024,
+                  Niagara Falls, ON, Canada, July 15-19, 2024},
+  pages        = {1--6},
+  publisher    = {{IEEE}},
+  year         = {2024}
+}
+```
 
